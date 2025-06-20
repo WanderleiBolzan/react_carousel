@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// --- Carousel Component ---
+// Interface para as propriedades do Carousel
 interface CarouselProps {
   images: string[];
   itemWidth?: number;
@@ -56,11 +56,12 @@ const Carousel: React.FC<CarouselProps> = ({
     }
   }, [getOffset, animationDuration, transitionEnabled]);
 
+  // Lida com o evento de término da transição para o loop infinito
   useEffect(() => {
     const listElement = carouselListRef.current;
 
     const handleTransitionEnd = () => {
-      setIsTransitioning(false); // Reset transition state
+      setIsTransitioning(false); // Reseta o estado de transição
 
       if (infinite) {
         if (currentIndex >= actualImages.length - frameSize) {
@@ -88,6 +89,7 @@ const Carousel: React.FC<CarouselProps> = ({
     };
   }, [currentIndex, infinite, actualImages.length, frameSize]);
 
+  // Lida com o clique no botão "Próximo"
   const handleNext = () => {
     if (isTransitioning || images.length === 0) {
       return;
@@ -115,6 +117,7 @@ const Carousel: React.FC<CarouselProps> = ({
     }
 
     setTransitionEnabled(true);
+
     setIsTransitioning(true);
 
     let prevIndex = currentIndex - step;
@@ -129,6 +132,7 @@ const Carousel: React.FC<CarouselProps> = ({
   };
 
   const isPrevDisabled = !infinite && currentIndex === 0;
+
   const isNextDisabled =
     !infinite && currentIndex >= actualImages.length - frameSize;
   const canScroll = images.length > frameSize;
@@ -144,7 +148,7 @@ const Carousel: React.FC<CarouselProps> = ({
       <div className="flex items-center justify-center p-5">
         <ul
           ref={carouselListRef}
-          className="flex" // Removed direct transition class here as it's managed by JS
+          className="flex"
           style={{
             transform: `translateX(${getOffset()}px)`,
             transitionDuration: transitionEnabled
@@ -252,151 +256,4 @@ const Carousel: React.FC<CarouselProps> = ({
   );
 };
 
-// --- Main App Component ---
-const App = () => {
-  const [itemWidth, setItemWidth] = useState(130);
-  const [frameSize, setFrameSize] = useState(3);
-  const [step, setStep] = useState(3);
-  const [animationDuration, setAnimationDuration] = useState(1000);
-  const [infinite, setInfinite] = useState(false);
-
-  const images = [
-    'https://via.placeholder.com/130x90/FF5733/FFFFFF?text=Image+1',
-    'https://via.placeholder.com/130x90/33FF57/FFFFFF?text=Image+2',
-    'https://via.placeholder.com/130x90/3357FF/FFFFFF?text=Image+3',
-    'https://via.placeholder.com/130x90/FFFF33/000000?text=Image+4',
-    'https://via.placeholder.com/130x90/FF33FF/FFFFFF?text=Image+5',
-    'https://via.placeholder.com/130x90/33FFFF/000000?text=Image+6',
-    'https://via.placeholder.com/130x90/800080/FFFFFF?text=Image+7',
-    'https://via.placeholder.com/130x90/FFA500/FFFFFF?text=Image+8',
-    'https://via.placeholder.com/130x90/008080/FFFFFF?text=Image+9',
-    'https://via.placeholder.com/130x90/808080/FFFFFF?text=Image+10',
-  ];
-
-  return (
-    <div
-      className="flex flex-col items-center
-      justify-center min-h-screen
-      bg-gray-100 p-4 font-sans
-      text-gray-800"
-    >
-      <h1
-        data-cy="title"
-        className="text-4xl font-bold
-        mb-8 text-blue-700
-        rounded-lg p-2 shadow-md"
-      >
-        React Carousel
-      </h1>
-
-      {/* Configuration Inputs */}
-      <div
-        className="bg-white p-6 rounded-xl
-        shadow-lg mb-8
-        w-full max-w-lg flex flex-wrap
-        justify-center gap-4
-        border border-blue-200"
-      >
-        <label className="flex flex-col items-start w-full sm:w-auto">
-          <span
-            className="text-sm font-medium
-          text-gray-600 mb-1"
-          >
-            Item Width (px):
-          </span>
-          <input
-            type="number"
-            value={itemWidth}
-            onChange={e => setItemWidth(Math.max(1, parseInt(e.target.value)))}
-            className="p-2 border border-gray-300
-              rounded-md focus:ring-2
-              focus:ring-blue-500
-              focus:border-transparent
-              transition duration-200
-              w-full sm:w-32"
-          />
-        </label>
-        <label className="flex flex-col items-start w-full sm:w-auto">
-          <span
-            className="text-sm font-medium
-            text-gray-600 mb-1"
-          >
-            Frame Size:
-          </span>
-          <input
-            type="number"
-            value={frameSize}
-            onChange={e => setFrameSize(Math.max(1, parseInt(e.target.value)))}
-            className="p-2 border border-gray-300
-              rounded-md focus:ring-2
-              focus:ring-blue-500
-              focus:border-transparent
-              transition duration-200
-              w-full sm:w-32"
-          />
-        </label>
-        <label className="flex flex-col items-start w-full sm:w-auto">
-          <span className="text-sm font-medium text-gray-600 mb-1">Step:</span>
-          <input
-            type="number"
-            value={step}
-            onChange={e => setStep(Math.max(1, parseInt(e.target.value)))}
-            className="p-2 border border-gray-300
-              rounded-md focus:ring-2
-              focus:ring-blue-500
-              focus:border-transparent
-              transition duration-200
-              w-full sm:w-32"
-          />
-        </label>
-        <label className="flex flex-col items-start w-full sm:w-auto">
-          <span
-            className="text-sm font-medium
-          text-gray-600 mb-1"
-          >
-            Animation Duration (ms):
-          </span>
-          <input
-            type="number"
-            value={animationDuration}
-            onChange={e =>
-              setAnimationDuration(Math.max(0, parseInt(e.target.value)))
-            }
-            className="p-2 border border-gray-300
-            rounded-md focus:ring-2
-            focus:ring-blue-500
-            focus:border-transparent
-            transition duration-200
-            w-full sm:w-32"
-          />
-        </label>
-        <label className="flex items-center mt-2 w-full justify-center">
-          <input
-            type="checkbox"
-            checked={infinite}
-            onChange={e => setInfinite(e.target.checked)}
-            className="mr-2 h-4 w-4
-              text-blue-600
-              border-gray-300
-              rounded focus:ring-blue-500"
-          />
-          <span className="text-sm font-medium text-gray-700">
-            Infinite Carousel
-          </span>
-        </label>
-      </div>
-
-      {/* Carousel Component */}
-      <Carousel
-        images={images}
-        itemWidth={itemWidth}
-        frameSize={frameSize}
-        step={step}
-        animationDuration={animationDuration}
-        infinite={infinite}
-      />
-    </div>
-  );
-};
-
-export default App;
+export default Carousel;
