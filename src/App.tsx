@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// --- Carousel Component ---
 interface CarouselProps {
   images: string[];
   itemWidth?: number;
@@ -21,6 +22,7 @@ const Carousel: React.FC<CarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(infinite ? frameSize : 0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [actualImages, setActualImages] = useState<string[]>(images);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
 
   useEffect(() => {
     if (infinite && images.length > 0) {
@@ -37,6 +39,8 @@ const Carousel: React.FC<CarouselProps> = ({
       setActualImages(images);
       setCurrentIndex(0);
     }
+
+    setTransitionEnabled(false);
   }, [images, infinite, frameSize]);
 
   const getOffset = useCallback(() => {
@@ -46,24 +50,31 @@ const Carousel: React.FC<CarouselProps> = ({
   useEffect(() => {
     if (carouselListRef.current) {
       carouselListRef.current.style.transform = `translateX(${getOffset()}px)`;
+      carouselListRef.current.style.transition = transitionEnabled
+        ? `transform ${animationDuration}ms ease-in-out`
+        : 'none';
     }
-  }, [getOffset]);
+  }, [getOffset, animationDuration, transitionEnabled]);
 
   useEffect(() => {
     const listElement = carouselListRef.current;
 
     const handleTransitionEnd = () => {
-      setIsTransitioning(false);
+      setIsTransitioning(false); // Reset transition state
 
       if (infinite) {
         if (currentIndex >= actualImages.length - frameSize) {
-          carouselListRef.current!.style.transition = 'none';
+          setTransitionEnabled(false);
           setCurrentIndex(frameSize);
-        } else if (currentIndex < frameSize && currentIndex !== 0) {
-          carouselListRef.current!.style.transition = 'none';
+        } else if (currentIndex < frameSize) {
+          setTransitionEnabled(false);
           setCurrentIndex(actualImages.length - 2 * frameSize);
         }
       }
+
+      setTimeout(() => {
+        setTransitionEnabled(true);
+      }, 50);
     };
 
     if (listElement) {
@@ -82,9 +93,8 @@ const Carousel: React.FC<CarouselProps> = ({
       return;
     }
 
+    setTransitionEnabled(true);
     setIsTransitioning(true);
-
-    carouselListRef.current!.style.transition = `transform ${animationDuration}ms ease-in-out`;
 
     let nextIndex = currentIndex + step;
 
@@ -104,9 +114,8 @@ const Carousel: React.FC<CarouselProps> = ({
       return;
     }
 
+    setTransitionEnabled(true);
     setIsTransitioning(true);
-
-    carouselListRef.current!.style.transition = `transform ${animationDuration}ms ease-in-out`;
 
     let prevIndex = currentIndex - step;
 
@@ -135,10 +144,12 @@ const Carousel: React.FC<CarouselProps> = ({
       <div className="flex items-center justify-center p-5">
         <ul
           ref={carouselListRef}
-          className="flex transition-transform duration-1000 ease-in-out"
+          className="flex" // Removed direct transition class here as it's managed by JS
           style={{
             transform: `translateX(${getOffset()}px)`,
-            transitionDuration: `${animationDuration}ms`,
+            transitionDuration: transitionEnabled
+              ? `${animationDuration}ms`
+              : '0ms',
           }}
         >
           {actualImages.map((image, index) => (
@@ -193,7 +204,7 @@ const Carousel: React.FC<CarouselProps> = ({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <path
               strokeLinecap="round"
@@ -226,7 +237,7 @@ const Carousel: React.FC<CarouselProps> = ({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <path
               strokeLinecap="round"
@@ -241,7 +252,7 @@ const Carousel: React.FC<CarouselProps> = ({
   );
 };
 
-// Main App Component
+// --- Main App Component ---
 const App = () => {
   const [itemWidth, setItemWidth] = useState(130);
   const [frameSize, setFrameSize] = useState(3);
@@ -250,16 +261,16 @@ const App = () => {
   const [infinite, setInfinite] = useState(false);
 
   const images = [
-    './img/1.png',
-    './img/2.png',
-    './img/3.png',
-    './img/4.png',
-    './img/5.png',
-    './img/6.png',
-    './img/7.png',
-    './img/8.png',
-    './img/9.png',
-    './img/10.png',
+    'https://via.placeholder.com/130x90/FF5733/FFFFFF?text=Image+1',
+    'https://via.placeholder.com/130x90/33FF57/FFFFFF?text=Image+2',
+    'https://via.placeholder.com/130x90/3357FF/FFFFFF?text=Image+3',
+    'https://via.placeholder.com/130x90/FFFF33/000000?text=Image+4',
+    'https://via.placeholder.com/130x90/FF33FF/FFFFFF?text=Image+5',
+    'https://via.placeholder.com/130x90/33FFFF/000000?text=Image+6',
+    'https://via.placeholder.com/130x90/800080/FFFFFF?text=Image+7',
+    'https://via.placeholder.com/130x90/FFA500/FFFFFF?text=Image+8',
+    'https://via.placeholder.com/130x90/008080/FFFFFF?text=Image+9',
+    'https://via.placeholder.com/130x90/808080/FFFFFF?text=Image+10',
   ];
 
   return (
